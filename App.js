@@ -1,21 +1,44 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React from 'react'
+import { StatusBar } from 'react-native'
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+import styled from 'styled-components/native'
+
+import Header from './components/Header'
+import { AppLoading } from 'expo'
+
+import { useFonts, Quicksand_300Light, Quicksand_400Regular, Quicksand_700Bold, Quicksand_500Medium} from '@expo-google-fonts/quicksand'
+
+
+const Container = styled.SafeAreaView`
+  flex: 1;
+  background: orange;
+`
+const Text = styled.Text`
+  fontSize: 20px;
+  fontFamily: "Quicksand_300Light";
+`
+
+const App = () => {
+  let [fontsLoaded, error] = useFonts({
+    Quicksand_300Light,
+  });
+  
+  if(!fontsLoaded){
+  return <AppLoading/>
+  }
+return(
+  <>
+  <StatusBar 
+  backgroundColor="#ffffff"
+  barStyle="dark-content"
+  />
+  <Container>
+  <Header></Header>
+  
+  </Container>
+  </>
+)
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App
+
