@@ -67,9 +67,35 @@ export default function App() {
 <NavigationContainer>
       <MyTabs />
     </NavigationContainer>
+
   )
 }
 
+
+//
+
+
+const App = () => {
+  let [fontsLoaded, error] = useFonts({
+      Quicksand_300Light,
+  });
+  if (!fontsLoaded) {
+      return <AppLoading / >
+  };
+
+  return( 
+      <>
+      <StatusBar backgroundColor = "#ffffff"
+      barStyle = "dark-content" />
+      <Container>
+      <Header> </Header>
+      <Navigation></Navigation>
+      </Container>
+      </>
+  )
+}
+
+export default App; 
 
 
 

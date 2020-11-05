@@ -36,6 +36,7 @@ const HeaderText = styled.View`
 
 const Dino = styled.View`
     flex: 1;
+    align-items: center;
 `
 
 
