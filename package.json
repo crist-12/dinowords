@@ -9,6 +9,8 @@
   },
   "dependencies": {
     "@expo-google-fonts/quicksand": "^0.1.0",
+    "@react-native-community/progress-bar-android": "^1.0.4",
+    "@react-native-community/progress-view": "^1.2.3",
     "@react-navigation/material-bottom-tabs": "^5.3.5",
     "@react-navigation/native": "^5.8.6",
     "expo": "~39.0.2",

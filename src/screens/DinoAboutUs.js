@@ -9,6 +9,7 @@ import { useFonts, Quicksand_300Light, Quicksand_400Regular, Quicksand_700Bold, 
 
 const Container = styled.SafeAreaView`
   flex:1;
+  background: white;
 `
 
 const TextArea = styled.SafeAreaView`

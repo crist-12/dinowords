@@ -6,6 +6,7 @@ import styled from 'styled-components/native'
 import { View } from 'react-native'
 
 import Header from './components/Header'
+import OrangeBar from './components/OrangeBar'
 import  TopNav  from './components/Navigation'
 import { AppLoading } from 'expo'
 
@@ -21,11 +22,11 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 
 const Container = styled.SafeAreaView`
   flex: 1;
-  background: green;
 `
 const Text = styled.Text`
   fontSize: 20px;
 `
+
 
 //fontFamily: "Quicksand_300Light";
 /* let [fontsLoaded, error] = useFonts({
@@ -42,6 +43,9 @@ const App= ()=>{
         barStyle = "dark-content" />
         <Container>
         <Header> </Header>
+        <View>
+        <OrangeBar></OrangeBar>
+        </View>
         <TopNav></TopNav>
         </Container>
         </>

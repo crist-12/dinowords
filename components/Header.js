@@ -15,23 +15,19 @@ const Container = styled.View`
 const Head = styled.View`
     flex: 1;
     flex-direction: row;
-    background: blue;
 `
 
 const WordSection = styled.View`
     flex: 2;
-    background: red;
 `
 
 const AppWord = styled.View`
     flex: 1;
-    background: yellow;
     flex-direction: row;
 `
 
 const HeaderText = styled.View`
     flex: 1;
-    background: green;
 `
 
 const Dino = styled.View`
