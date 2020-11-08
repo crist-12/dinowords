@@ -1,15 +1,17 @@
-import React from 'react'
+import React, { useState } from 'react'
 
 import styled from 'styled-components/native'
-
-import Header from '../../components/Header'
 
 import { AppLoading } from 'expo'
 
 import { useFonts, Quicksand_300Light, Quicksand_400Regular, Quicksand_700Bold, Quicksand_500Medium } from '@expo-google-fonts/quicksand'
-import { TextInput } from 'react-native-paper'
 
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import backend from '../api/backend'
+import getEnvVars from '../../enviroment'
+
+const { apiKey } = getEnvVars();
+const { apiId } = getEnvVars();
+const { apiUrl } = getEnvVars();
 
 const Container = styled.SafeAreaView`
     flex:1;
@@ -60,7 +62,15 @@ const Button = styled.Button`
     padding: 5px;
 `
 
+
+  
+}
+
 const SearchWord = ()=>{
+
+  const[words, setWords] = useState(null);
+  const [errorState, setError]=useState(null);
+
   let [fontsLoaded, error] = useFonts({
     Quicksand_700Bold,
     Quicksand_300Light,
@@ -70,7 +80,24 @@ const SearchWord = ()=>{
   if(!fontsLoaded){
     return <AppLoading/>
     }
+    const getWords = async()=>{
 
+      let config = {
+          headers :{
+            "app_id": apiId,
+            "app_key": apiKey
+          }
+      }
+      try{
+        const response = await backend.get(apiUrl, config);
+    
+        setWords(response.data);
+        //console.log(response.data);
+        console.log(words);
+      }catch{
+        setError(true);
+      }
+      
   return(
     <Container>
       <Box>
@@ -80,10 +107,10 @@ const SearchWord = ()=>{
         <SearchBox>
         <InputText placeholder="Buscar"></InputText>
         </SearchBox>
-        <ButtonBox><Button title={"Search"} color={"#FF7F00"}></Button></ButtonBox>
+        <ButtonBox><Button title={"Search"} color={"#FF7F00"} onPress={getWords()}></Button></ButtonBox>
       </Controls>
-      <TextBox></TextBox>
-     
+  <TextBox></TextBox>
+      <Text></Text>
     </Container>
   )
 }
