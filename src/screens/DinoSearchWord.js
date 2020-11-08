@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 import styled from 'styled-components/native'
 
@@ -62,11 +62,12 @@ const Button = styled.Button`
     padding: 5px;
 `
 
-
 const SearchWord = ()=>{
 
+  let value=true;
   const[words, setWords] = useState(null);
   const [errorState, setError]=useState(null);
+  
 
   let [fontsLoaded, error] = useFonts({
     Quicksand_700Bold,
@@ -77,23 +78,29 @@ const SearchWord = ()=>{
   if(!fontsLoaded){
     return <AppLoading/>
     }
-    const getWords = async()=>{
-
-      let config = {
-          headers :{
-            "app_id": apiId,
-            "app_key": apiKey
-          }
-      }
-      try{
-        const response = await backend.get(apiUrl, config);
     
-        setWords(response.data);
-        //console.log(response.data);
-        console.log(words);
-      }catch{
-        setError(true);
+
+const getWords = async()=>{
+
+  const config = {
+      headers :{
+        "app_id": apiId,
+        "app_key": apiKey
       }
+  }
+
+  try{
+    const response = await backend.get(apiUrl, config);
+    
+    setWords(response.data);
+    console.log("Hola");
+    console.log(response.data);
+    }catch{
+      setError(true);
+    }
+    console.log('Función ejecutada');
+    }
+
 
   return(
     <Container>
@@ -104,12 +111,12 @@ const SearchWord = ()=>{
         <SearchBox>
         <InputText placeholder="Buscar"></InputText>
         </SearchBox>
-        <ButtonBox><Button title={"Search"} color={"#FF7F00"} onPress={getWords()}></Button></ButtonBox>
+        <ButtonBox><Button title={"Search"} color={"#FF7F00"} onPress={()=>getWords()}></Button></ButtonBox>
       </Controls>
-  <TextBox></TextBox>
+        <TextBox></TextBox>
       <Text></Text>
     </Container>
   )
-}}
+}
 
 export default SearchWord;
