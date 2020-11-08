@@ -63,9 +63,6 @@ const Button = styled.Button`
 `
 
 
-  
-}
-
 const SearchWord = ()=>{
 
   const[words, setWords] = useState(null);
@@ -97,7 +94,7 @@ const SearchWord = ()=>{
       }catch{
         setError(true);
       }
-      
+
   return(
     <Container>
       <Box>
@@ -113,6 +110,6 @@ const SearchWord = ()=>{
       <Text></Text>
     </Container>
   )
-}
+}}
 
 export default SearchWord;
