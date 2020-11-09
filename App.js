@@ -1,5 +1,5 @@
 import React from 'react'
-import { StatusBar } from 'react-native'
+import { StatusBar, ScrollView } from 'react-native'
 
 import styled from 'styled-components/native'
 
@@ -13,9 +13,6 @@ import  TopNav  from './components/Navigation'
 const Container = styled.SafeAreaView`
   flex: 1;
 `
-const Text = styled.Text`
-  fontSize: 20px;
-`
 
 const App= ()=>{
         return( 
@@ -23,10 +20,8 @@ const App= ()=>{
         <StatusBar backgroundColor = "#ffffff"
         barStyle = "dark-content" />
         <Container>
-        <Header> </Header>
-        <View>
-        <OrangeBar></OrangeBar>
-        </View>
+        <Header/>
+        <OrangeBar/>
         <TopNav></TopNav>
         </Container>
         </>
