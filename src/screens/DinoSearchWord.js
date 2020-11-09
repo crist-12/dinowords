@@ -102,6 +102,7 @@ const SearchWord = ()=>{
   const [errorState, setError]=useState(null);
   const [search, setSearch]=useState('');
   const [loading, setLoading]=useState(false);
+  const [acting, setActing]=useState(false);
   let visible=false;
 
   let [fontsLoaded, error] = useFonts({
@@ -115,24 +116,29 @@ const SearchWord = ()=>{
     
 
 const getWords = async()=>{
-
+console.log("Acabo de entrar a la funcion")
   const config = {
       headers :{
         "app_id": apiId,
         "app_key": apiKey
       }
   }
-
+  
   try{
+    setActing(true);
     const response = await backend.get(apiUrl+search+apiUrlFinal, config);
     setWords(response.data);
-    console.log(response.data);
+    console.log("Estamos intentando...")
+    
+    //console.log(response.data);
     }catch{
       setError(true);
       console.log('Error');
     }
+    setActing(false);
     setLoading(false);
     setVisible()
+    console.log("Estoy en getWords()")
   }
 
   const setVisible=()=>{
@@ -144,7 +150,11 @@ const getWords = async()=>{
     console.log("Cambió de estado a falso (no cargando)");
   }
 
-
+  if(acting){
+    return(
+      <DinoLoader/>
+    )
+  }
 
   return(
     (!loading?
@@ -179,15 +189,9 @@ const getWords = async()=>{
     { visible?<TextMeaning>---</TextMeaning>:
           words.results.map((lexical)=>(
             lexical.lexicalEntries.map((category)=>(
-              category.lexicalCategory.map((item)=>(
-               console.log(item.text) 
-              )
-                
-              )
-          
+              <TextMeaning key={category.lexicalCategory.id}>{category.lexicalCategory.text}</TextMeaning>
             ))
-          ))
-          
+          ))     
     }
     </WordIntoBox>
     </WordBox>
