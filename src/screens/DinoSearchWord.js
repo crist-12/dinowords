@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { Dimensions, Spinner } from 'react-native'
+import React, { useState } from 'react'
+
 
 import styled from 'styled-components/native'
 
@@ -9,14 +9,15 @@ import { useFonts, Quicksand_300Light, Quicksand_400Regular, Quicksand_700Bold, 
 
 import DinoLoader from '../../components/DinoLoader'
 
-
+// ---- Data and API Imports ----
+import gifbackend from '../api/gifbackend'
 import backend from '../api/backend'
 import getEnvVars from '../../enviroment'
-import { MaterialBottomTabView } from '@react-navigation/material-bottom-tabs'
 
-//const { width, height } = Dimensions.get("window");
+// PLEASE DON'T TOUCH ANYTHING!
 
 const { apiKey, apiId, apiUrl, apiUrlFinal } = getEnvVars();
+const { apiGifUrl, apiGifKey, apiGifUrlMiddle, apiGifUrlFinal} = getEnvVars();
 
 
 const Container = styled.ScrollView`
@@ -92,19 +93,35 @@ const TextMeaning = styled.Text`
   text-align:justify;
   padding: 5px;
 `
-const BoxAux = styled.View`
-  flex:1;
+const GifBox = styled.View`
+  border : 1px;
+  margin-top: 5px;
+  border-radius: 15px;
+  height: 30px;
+  align-items: center;
+  justify-content: center;
+  width: 100%
+  height: 200px;
+`
+const Giphy = styled.Image`
+  padding: 5px;
+  height: 90%;
+  width: 90%;
 `
 
 const SearchWord = ()=>{
 
+  // ---- Hooks Section -----
   const[words, setWords] = useState(data);
   const [errorState, setError]=useState(null);
   const [search, setSearch]=useState('');
   const [loading, setLoading]=useState(false);
   const [acting, setActing]=useState(false);
+  const [gif, setGif]=useState(null);
   let visible=false;
+  let gifObject=null;
 
+  // ----- Font Loading -----
   let [fontsLoaded, error] = useFonts({
     Quicksand_700Bold,
     Quicksand_300Light
@@ -113,8 +130,22 @@ const SearchWord = ()=>{
   if(!fontsLoaded){
     return <AppLoading/>
     }
-    
 
+// ---- Gif Api Petition ----
+const getGif = async()=>{
+    console.log("Funcion del gif")
+      try {
+        const response = await gifbackend.get(apiGifUrl+apiGifKey+apiGifUrlMiddle+search+apiGifUrlFinal+"1");
+        setGif(response.data);
+        //console.log(response.data);
+        
+        //console.log(apiGifUrl+apiGifKey+apiGifUrlMiddle+'search'+apiGifUrlFinal);
+      }catch{
+      console.log("Error al tratar de conseguir el Gif")
+    }
+  }
+
+  // ---- Word Api Petition ----
 const getWords = async()=>{
 console.log("Acabo de entrar a la funcion")
   const config = {
@@ -129,15 +160,20 @@ console.log("Acabo de entrar a la funcion")
     const response = await backend.get(apiUrl+search+apiUrlFinal, config);
     setWords(response.data);
     console.log("Estamos intentando...")
-    
     //console.log(response.data);
     }catch{
       setError(true);
       console.log('Error');
     }
-    setActing(false);
-    setLoading(false);
-    setVisible()
+    try{
+      getGif();
+    }catch{
+      console.log("Error")
+    }
+
+    setActing(false); // La aplicación ha dejado de buscar una palabra
+    setLoading(false); // Oculto la pantalla de carga
+    setVisible() //Habilito la visibilidad del componente DinoSearch
     console.log("Estoy en getWords()")
   }
 
@@ -194,7 +230,26 @@ console.log("Acabo de entrar a la funcion")
           ))     
     }
     </WordIntoBox>
+    <GifBox>
+
+      {
+        !gif?<Giphy
+        source = {require('../../assets/fondogif.png')}
+        />:
+        
+          gif.data.map((image)=>(
+            
+            <Giphy key = {image.images.downsized.url}
+            source={{
+            uri: image.images.downsized.url
+            }}
+            /> 
+          ))
+      }
+      
+    </GifBox>
     </WordBox>
+   
     </Container>
     :
    <DinoLoader/>
@@ -203,6 +258,50 @@ console.log("Acabo de entrar a la funcion")
 }
 
 export default SearchWord;
+
+
+
+const gifdata = {
+  "data":[{
+  "type":"gif",
+  "id":"JPV8lNtI59zaWyL4pf",
+  "url":"https://giphy.com/gifs/memecandy-JPV8lNtI59zaWyL4pf",
+  "slug":"memecandy-JPV8lNtI59zaWyL4pf",
+  "bitly_gif_url":"https://gph.is/g/Ev3yj5o",
+  "bitly_url":"https://gph.is/g/Ev3yj5o",
+  "embed_url":"https://giphy.com/embed/JPV8lNtI59zaWyL4pf",
+  "username":"memecandy",
+  "source":"",
+  "title":"Search GIF by memecandy",
+  "rating":"g",
+  "content_url":"",
+  "source_tld":"",
+  "source_post_url":"",
+  "is_sticker":0,
+  "import_datetime":"2020-01-23 19:09:26",
+  "trending_datetime":"0000-00-00 00:00:00",
+  "images":{
+      "original":{
+          "height":"331",
+          "width":"498",
+          "size":"2464453",
+          "url":"https://media0.giphy.com/media/JPV8lNtI59zaWyL4pf/giphy.gif?cid=ae7bab5annc7epbm3zn38bk6ltxrck237c2bc3v7yjfpf7ho&rid=giphy.gif",
+          "mp4_size":"871626",
+          "mp4":"https://media0.giphy.com/media/JPV8lNtI59zaWyL4pf/giphy.mp4?cid=ae7bab5annc7epbm3zn38bk6ltxrck237c2bc3v7yjfpf7ho&rid=giphy.mp4",
+          "webp_size":"1130288",
+          "webp":"https://media0.giphy.com/media/JPV8lNtI59zaWyL4pf/giphy.webp?cid=ae7bab5annc7epbm3zn38bk6ltxrck237c2bc3v7yjfpf7ho&rid=giphy.webp",
+          "frames":"28",
+          "hash":"c4b67f3d578f8877b6caecc752499682"},
+          "downsized":{
+              "height":"331",
+              "width":"498",
+              "size":"1412653",
+              "url":"https://media0.giphy.com/media/JPV8lNtI59zaWyL4pf/giphy-downsized.gif?cid=ae7bab5annc7epbm3zn38bk6ltxrck237c2bc3v7yjfpf7ho&rid=giphy-downsized.gif"
+          }
+      }
+  }
+]
+}
 
 /*{
   words?<TextMeaning>---</TextMeaning>:
@@ -379,3 +478,5 @@ const data = {
   ],
   "word": "dinosaur"
 }
+
+
