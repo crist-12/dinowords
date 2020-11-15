@@ -1,8 +1,7 @@
-import React from 'react'
+import React, { useState } from 'react'
+
 
 import styled from 'styled-components/native'
-
-//import { AudioRecorder, AudioPlayer } from 'react-native-audio-4expo';
 
 import { AppLoading } from 'expo'
 
@@ -10,143 +9,139 @@ import { useFonts, Quicksand_300Light, Quicksand_400Regular, Quicksand_700Bold, 
 
 import DinoLoader from '../../components/DinoLoader'
 
-import { Audio } from 'expo-av'
-//import {AudioRecorder, AudioPlayer} from 'react-native-audio-4expo';
-//import Sound from 'react-native-audio-exoplayer'
+// ---- Data and API Imports ----
 import gifbackend from '../api/gifbackend'
+import backend from '../api/backend'
 import getEnvVars from '../../enviroment'
-import { WebView } from "react-native-webview";
-//import SoundPlayer from ' react-native-sound-player ' 
+import { TouchableOpacity } from "react-native-gesture-handler";
+// PLEASE DON'T TOUCH ANYTHING!
 
-const TextAudio = styled.Text`
-display:flex;
-margin: 0px 20px;
+const { apiKey, apiId, apiUrl, apiUrlFinal } = getEnvVars();
+const { apiGifUrl, apiGifKey, apiGifUrlMiddle, apiGifUrlFinal } = getEnvVars();
 
-`
-const TextBox = styled.View`
-    flex: 2;
-    margin: 1px 5px;
-    padding:5px 20px;
-  
-`
 
-const Image = styled.Image`
-padding: 5px;
-height: 20%;
-width: 20%;
-`
-
-const Bottom = styled.Button`
-    flex:1;
-    margin: 15px;
-    padding: 5px;
-   
-`
-
-const Boxaudio = styled.View`
-flex-direction:row;
-margin: 0px 10px;
-padding;10px 15px;
-`
-
-const Container = styled.View`
+const Container = styled.ScrollView`
     flex:1;
     background: white;
 `
 
-const { apiGifUrl, apiGifKey, apiGifUrlMiddle, apiGifUrlFinal } = getEnvVars();
+const Box = styled.View`
+    margin: 0 15px;
+`
 
-const DinoContextWord = () => {
+const Controls = styled.View`
+    flex-direction:row;
+    height: 50px;
+    margin: 0px 15px;
+`
 
-  let playAudio;
+const SearchBox = styled.View`
+    flex: 2;
+    padding:5px;
+`
+
+const ButtonBox = styled.View`
+    flex: 1;
+    margin: 6px;
+`
+
+
+const Text = styled.Text`
+    font-size: 16px;
+    margin: 10px;
+    font-family: "Quicksand_700Bold"
+`
+
+const InputText = styled.TextInput`
+    color: black;
+    font-family: "Quicksand_300Light"
+    margin: 5px;
+    borderWidth: 1px;
+    border-radius: 30px;
+    padding: 8px;
+`
+
+const Button = styled.Button`
+    color: white;
+    margin: 15px;
+    padding: 5px;
+`
+
+const WordBox = styled.View`
+    flex-direction: column;
+    height: 50%;
+    margin: 0px 15px;
+    padding: 5px;
+`
+
+const WordIntoBox = styled.View`
+    border: 1px;
+    border-radius: 15px;
+    padding: 5px;
+`
+
+const TextDefinition = styled.Text`
+    font-family: "Quicksand_700Bold"
+    font-size: 18px;
+    text-transform: capitalize;
+    padding: 5px;
+`
+const TextMeaning = styled.Text`
+  margin-top: 10px;
+  font-family: "Quicksand_300Light"
+  font-size: 16px;
+  text-align:justify;
+  padding: 5px;
+`
+const GifBox = styled.View`
+  border : 1px;
+  margin-top: 5px;
+  border-radius: 15px;
+  height: 30px;
+  align-items: center;
+  justify-content: center;
+  width: 100%
+  height: 200px;
+`
+const Giphy = styled.Image`
+  padding: 5px;
+  height: 90%;
+  width: 90%;
+`
+
+const SearchWord = ({ navigation }) => {
+
+  // ---- Hooks Section -----
+  const [words, setWords] = useState(data);
+  const [errorState, setError] = useState(null);
+  const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [acting, setActing] = useState(false);
+  const [gif, setGif] = useState(null);
+  let visible = false;
+  let gifObject = null;
+  //
+ 
   let pronunverbs;
-  data.results.map((lexical) => (
-    lexical.lexicalEntries.map((entry) => (
-      entry.entries.map((pronunciation) => (
-        pronunciation.pronunciations.map((pronun) =>
-          playAudio = pronun.audioFile
-        )))))))
 
-  data.results.map((lexical) => (
-    lexical.lexicalEntries.map((entry) => (
-      entry.entries.map((pronunciation) => (
-        pronunciation.pronunciations.map((pronun) =>
-          pronunverbs = pronun.dialects[0]
-        ))
-      ))
-    ))
-  )
+  let verb;
+  let derivaciones;
+ // setWords(words2);
+ let pronunciacion;
+  let playAudio;
+  let  shortDefinicion;
 
+  // ----- Font Loading -----
+  let [fontsLoaded, error] = useFonts({
+    Quicksand_700Bold,
+    Quicksand_300Light
+  });
 
-
-
-
-
-
-  const Reproducir = async () => {
-    let soundObject = new Audio.Sound();
-    try {
-      console.log(pronunverbs);
-      await soundObject.loadAsync({ uri: playAudio })
-      await soundObject.playAsync();
-    } catch {
-      console.log("No se pudo reproducir")
-    }
+  if (!fontsLoaded) {
+    return <AppLoading />
   }
 
-
-
-
-  /* const playbackObject = await Audio.Sound.createAsync(
-    { uri: audio },
-    { shouldPlay: true }
-  );*/
-
-
-  /*
-  const AudioFuncion = async() => {
- // try {
-    console.log ("estoy adentro")
-   await soundObject.loadAsync({uri:audio});
-   await soundObject.playAsync();
-   // Your sound is playing!
- //} catch (error) {
-   console.log("No entro")
-   // An error occurred!
-//  }
-}
-
-
-  data.results.map((lexical) => (
-    lexical.lexicalEntries.map((entry) => (
-      entry.entries.map((pronunciation) => (
-        pronunciation.pronunciations.map((pronun) =>
-          pronun.dialects.map((verb) => (
-            pronunverbs = verb.dialects
-
-          )))))))))
-
-*/
-
-  const Funcion = () => {
-    //  console.log(data.results.lexicalEntries.entries.pronunciations.audioFile)
-    console.log("Estoy Adentro")
-    /*  data.results.map((lexical) => (
-    lexical.lexicalEntries.map((entry) => (
-        entry.entries.map((pronunciation) => (
-        pronunciation.pronunciations.map((pronun)=> 
-        audio = pronun.audioFile
-        )
-        //< key={pronunciation.pronunciations} source={{uri:pronunciation.pronunciations.audioFile}}/>
-       
- <Bottom title={"Botón"} onPress={() => playbackObject()}>  </Bottom>
-        ))
-        ))
-      ))*/
-  }
-
-
-
+  // ---- Gif Api Petition ----
   const getGif = async () => {
     console.log("Funcion del gif")
     try {
@@ -160,28 +155,275 @@ const DinoContextWord = () => {
     }
   }
 
-
-  const PlayAudio = () => {
-    return {
-
+  // ---- Word Api Petition ----
+  const getWords = async () => {
+    console.log("Acabo de entrar a la funcion")
+    const config = {
+      headers: {
+        "app_id": apiId,
+        "app_key": apiKey
+      }
     }
+
+    try {
+      setActing(true);
+      const response = await backend.get(apiUrl + search + apiUrlFinal, config);
+      setWords(response.data);
+      console.log("Estamos intentando...")
+      //console.log(response.data);
+    } catch {
+      setError(true);
+      console.log('Error');
+    }
+    try {
+      getGif();
+    } catch {
+      console.log("Error")
+    }
+
+    setActing(false); // La aplicación ha dejado de buscar una palabra
+    setLoading(false); // Oculto la pantalla de carga
+    setVisible() //Habilito la visibilidad del componente DinoSearch
+    console.log("Estoy en getWords()")
   }
 
+  const setVisible = () => {
+    visible = true;
+  }
+
+  if (!words === null) {
+    setLoading(false);
+    console.log("Cambió de estado a falso (no cargando)");
+  }
+
+  if (acting) {
+    return (
+      <DinoLoader />
+    )
+  }
+
+
+
+
+  // valores para obtener como propiedades para ser enviadas ala pantalla context
+  visible ? pronunciacion="---" :
+  words.results.map((lexical) => (
+    lexical.lexicalEntries.map((entry) => (
+      entry.entries.map((sense) => (
+        sense.senses.map((definition) => (
+       definition.definitions.map((oracion) => (
+        pronunciacion=oracion
+       ))
+        ))
+      ))
+    ))
+  ))
+
+
+words.results.map((lexical) => (
+lexical.lexicalEntries.map((entry) => (
+  entry.entries.map((pronunciation) => (
+    pronunciation.etymologies.map((pronun) =>
+      verb = pronun
+    ))
+  ))
+))
+)
+
+//
+visible? playAudio="Lo sentimos no hay audio" :
+words.results.map((lexical) => (
+lexical.lexicalEntries.map((entry) => (
+  entry.entries.map((pronunciation) => (
+    pronunciation.pronunciations.map((pronun) =>
+      playAudio = pronun.audioFile
+    ))
+  ))
+))
+)
+
+visible?  pronunverbs="Lo sentimos no hay pronunciacion"  :
+words.results.map((lexical) => (
+lexical.lexicalEntries.map((entry) => (
+  entry.entries.map((pronunciation) => (
+    pronunciation.pronunciations.map((pronun) =>
+      pronunverbs = pronun.dialects[0]
+    ))
+  ))
+))
+)
+
+//
+
+{
+visible ? pronunciacion="---" :
+  words.results.map((lexical) => (
+    lexical.lexicalEntries.map((entry) => (
+      entry.entries.map((sense) => (
+        sense.senses.map((definition) => (
+          definition.shortDefinitions.map((short)=>(
+            shortDefinicion  =  short              ))
+        ))
+      ))
+    ))
+  ))
+}
+
+visible? derivaciones="Lo sentimos no hay derivacion" :
+words.results.map((lexical) => (
+lexical.lexicalEntries.map((derivate) => (
+  derivate.derivatives.map((der)=>(
+   derivaciones= der.text
+  )))
+))
+)
+
+
+
+
+
+{
+visible ? shortDefinicion="---" :
+  words.results.map((lexical) => (
+    lexical.lexicalEntries.map((entry) => (
+      entry.entries.map((sense) => (
+        sense.senses.map((definition) => (
+        shortDefinicion= definition.shortDefinitions[0]           ))
+      ))
+    ))
+  ))
+}
+
+
+
+
+  //
   return (
-    <Container>
-      <Boxaudio>
-      <Bottom title={"play"} color={"#000000"}   onPress={() => Reproducir()}>  </Bottom>
-      <TextBox>
-      <TextAudio>{pronunverbs}</TextAudio>
-      </TextBox>
-      </Boxaudio>
-    </Container>
+    (!loading ?
+      <Container>
+        <Box>
+          <Text>Type the word you are looking for:</Text>
+        </Box>
+        <Controls>
+          <SearchBox>
+            <InputText placeholder="Buscar" value={search} onChangeText={setSearch} />
+          </SearchBox>
+          <ButtonBox><Button title={"Search"} color={"#FF7F00"} onPress={() => getWords()} /></ButtonBox>
+        </Controls>
+        <WordBox>
+          <TouchableOpacity onPress={() => {navigation.navigate("Context",{pronunverbs})}}>
+            <WordIntoBox>
+              <TextDefinition>{words.id}</TextDefinition>
+              <TextMeaning> Concepts: </TextMeaning>
+              <TextMeaning>{pronunciacion}</TextMeaning>
+              <TextMeaning>Category: </TextMeaning>
+              {visible ? <TextMeaning>---</TextMeaning> :
+                words.results.map((lexical) => (
+                  lexical.lexicalEntries.map((category) => (
+                    <TextMeaning key={category.lexicalCategory.id}>{category.lexicalCategory.text}</TextMeaning>
+                  ))
+                ))
+              }
+            </WordIntoBox>
+          </TouchableOpacity>
+          <GifBox>
+
+            {
+              !gif ? <Giphy
+                source={require('../../assets/fondogif.png')}
+              /> :
+
+                gif.data.map((image) => (
+
+                  <Giphy key={image.images.downsized.url}
+                    source={{
+                      uri: image.images.downsized.url
+                    }}
+                  />
+                ))
+            }
+
+          </GifBox>
+        </WordBox>
+
+      </Container>
+      :
+      <DinoLoader />
+    )
   )
 }
 
-/*   <Image  source={require("../../assets/audioIcon.png") }/>  */
+export default SearchWord;
 
-export default DinoContextWord;
+/* <TouchableOpacity onPress={() => navigation.navigate("DinoContext", {id: words.id})}> */
+
+const gifdata = {
+  "data": [{
+    "type": "gif",
+    "id": "JPV8lNtI59zaWyL4pf",
+    "url": "https://giphy.com/gifs/memecandy-JPV8lNtI59zaWyL4pf",
+    "slug": "memecandy-JPV8lNtI59zaWyL4pf",
+    "bitly_gif_url": "https://gph.is/g/Ev3yj5o",
+    "bitly_url": "https://gph.is/g/Ev3yj5o",
+    "embed_url": "https://giphy.com/embed/JPV8lNtI59zaWyL4pf",
+    "username": "memecandy",
+    "source": "",
+    "title": "Search GIF by memecandy",
+    "rating": "g",
+    "content_url": "",
+    "source_tld": "",
+    "source_post_url": "",
+    "is_sticker": 0,
+    "import_datetime": "2020-01-23 19:09:26",
+    "trending_datetime": "0000-00-00 00:00:00",
+    "images": {
+      "original": {
+        "height": "331",
+        "width": "498",
+        "size": "2464453",
+        "url": "https://media0.giphy.com/media/JPV8lNtI59zaWyL4pf/giphy.gif?cid=ae7bab5annc7epbm3zn38bk6ltxrck237c2bc3v7yjfpf7ho&rid=giphy.gif",
+        "mp4_size": "871626",
+        "mp4": "https://media0.giphy.com/media/JPV8lNtI59zaWyL4pf/giphy.mp4?cid=ae7bab5annc7epbm3zn38bk6ltxrck237c2bc3v7yjfpf7ho&rid=giphy.mp4",
+        "webp_size": "1130288",
+        "webp": "https://media0.giphy.com/media/JPV8lNtI59zaWyL4pf/giphy.webp?cid=ae7bab5annc7epbm3zn38bk6ltxrck237c2bc3v7yjfpf7ho&rid=giphy.webp",
+        "frames": "28",
+        "hash": "c4b67f3d578f8877b6caecc752499682"
+      },
+      "downsized": {
+        "height": "331",
+        "width": "498",
+        "size": "1412653",
+        "url": "https://media0.giphy.com/media/JPV8lNtI59zaWyL4pf/giphy-downsized.gif?cid=ae7bab5annc7epbm3zn38bk6ltxrck237c2bc3v7yjfpf7ho&rid=giphy-downsized.gif"
+      }
+    }
+  }
+  ]
+}
+
+/*{
+  words?<TextMeaning>---</TextMeaning>:
+      words.results.map((lexical)=>(
+            lexical.lexicalEntries.map((entry)=>(
+              entry.entries.map((sense)=>(
+                sense.senses.map((definition)=>(
+                <TextMeaning key={definition.definitions}>{definition.definitions[0]}</TextMeaning>
+                ))
+              ))
+            ))
+          ))
+}
+*/
+
+/*{ words?<TextMeaning>---</TextMeaning>:
+          words.results.map((lexical)=>(
+            lexical.lexicalEntries.map((category)=>(
+              category.lexicalCategory.map((typeword)=>(
+                <TextMeaning key={typeword.id}>{typeword.text}</TextMeaning>
+                ))
+            ))
+          ))
+    } */
+
 
 const data = {
   "id": "dinosaur",
