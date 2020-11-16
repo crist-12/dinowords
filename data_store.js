@@ -14,6 +14,7 @@ export const getData=()=>{
 }
 
 export const setGifData=(gifData)=>{
+    Gif = null;
     Gif = gifData;
     return Gif;
 }

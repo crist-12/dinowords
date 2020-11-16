@@ -114,6 +114,7 @@ const GifContainer = styled.View`
   width: 100%
 `
 
+
 let gifArray=[];
 
 const DinoContextWord=({navigation})=>{
@@ -121,6 +122,7 @@ const DinoContextWord=({navigation})=>{
 //  console.log(Objectdata)
   let dataObject = getData();
   let searchGifWord = getGifData();
+  let wordData =['No hay datos disponibles', 'No hay datos disponibles']
   console.log(searchGifWord)
   const getGif = async()=>{
     let search = dataObject.id
@@ -147,6 +149,21 @@ const DinoContextWord=({navigation})=>{
        gifArray.push(image.images.downsized.url)
       ))
     }
+
+    {
+      dataObject.results.map((lexical) => (
+      lexical.lexicalEntries.map((entry) => (
+      entry.entries.map((pronunciation) => (
+        pronunciation.pronunciations.map((pronun) =>
+        {if(pronun.phoneticNotation) wordData[0]=pronun.phoneticNotation;
+         if(pronun.phoneticSpelling) wordData[1]=pronun.phoneticSpelling;
+        }
+        ))))))
+    )
+    }
+
+
+console.log("Contenido del data:"+ wordData[0])
 
     let [fontsLoaded, error] = useFonts({
       Quicksand_300Light,
@@ -215,6 +232,10 @@ const DinoContextWord=({navigation})=>{
         </PlayButton>
           <TextPronunciation>British Pronunciation</TextPronunciation>
         </PlaySection>
+        <GroupText>Notation</GroupText>
+      <TextMeaning>{wordData[0]}</TextMeaning>
+        <GroupText>Spelling Notation</GroupText>
+      <TextMeaning>{wordData[1]}</TextMeaning>
       </WordIntoBox>
       <GBox>
         <GifContainer>
