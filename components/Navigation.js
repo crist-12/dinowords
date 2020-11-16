@@ -6,10 +6,12 @@ import DinoContextWord from '../src/screens/DinoContextWord'
 import DinoSearchWord from '../src/screens/DinoSearchWord'
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import  { getData } from '../data_store'
 
 const Tab = createMaterialBottomTabNavigator();
 
 const TopNav =() => {
+  let dataObject = getData()
   return  (
     <NavigationContainer>
     <Tab.Navigator initialRouteName="Search"
@@ -17,6 +19,7 @@ const TopNav =() => {
     labelStyle={{ fontSize: 12 }}
     barStyle={{ backgroundColor: '#ffffff' }}>
          <Tab.Screen
+        
         name="Search"
         component={DinoSearchWord}
         options={{
@@ -46,7 +49,6 @@ const TopNav =() => {
           ),
         }}
       />
-      
       </Tab.Navigator>
       </NavigationContainer>
   )

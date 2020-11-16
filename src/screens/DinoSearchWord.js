@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-
+import {setData, getData} from '../../data_store'
 
 import styled from 'styled-components/native'
 
@@ -8,11 +8,14 @@ import { AppLoading } from 'expo'
 import { useFonts, Quicksand_300Light, Quicksand_400Regular, Quicksand_700Bold, Quicksand_500Medium } from '@expo-google-fonts/quicksand'
 
 import DinoLoader from '../../components/DinoLoader'
+import DinoContextWord from '../screens/DinoContextWord'
+
 
 // ---- Data and API Imports ----
 import gifbackend from '../api/gifbackend'
 import backend from '../api/backend'
 import getEnvVars from '../../enviroment'
+
 
 // PLEASE DON'T TOUCH ANYTHING!
 
@@ -66,6 +69,9 @@ const Button = styled.Button`
     margin: 15px;
     padding: 5px;
 `
+const Touchable = styled.TouchableOpacity`
+    flex: 1;
+`
 
 const WordBox = styled.View`
     flex-direction: column;
@@ -109,7 +115,7 @@ const Giphy = styled.Image`
   width: 90%;
 `
 
-const SearchWord = ()=>{
+const SearchWord = (navigation)=>{
 
   // ---- Hooks Section -----
   const[words, setWords] = useState(data);
@@ -124,7 +130,7 @@ const SearchWord = ()=>{
   // ----- Font Loading -----
   let [fontsLoaded, error] = useFonts({
     Quicksand_700Bold,
-    Quicksand_300Light
+    Quicksand_300Light  
   });
 
   if(!fontsLoaded){
@@ -192,6 +198,9 @@ console.log("Acabo de entrar a la funcion")
     )
   }
 
+  setData(words);
+
+
   return(
     (!loading?
     <Container>
@@ -205,32 +214,34 @@ console.log("Acabo de entrar a la funcion")
         <ButtonBox><Button title={"Search"} color={"#FF7F00"} onPress={()=>getWords()}/></ButtonBox>
       </Controls>
       <WordBox>
-    <WordIntoBox>
-    <TextDefinition>{words.id}</TextDefinition>
-    <TextMeaning> Concepts: </TextMeaning>
-    {
-    visible?<TextMeaning>---</TextMeaning>:
-      words.results.map((lexical)=>(
-            lexical.lexicalEntries.map((entry)=>(
-              entry.entries.map((sense)=>(
-                sense.senses.map((definition)=>(
-                <TextMeaning key={definition.definitions}>{definition.definitions[0]}</TextMeaning>
+        <WordIntoBox>
+        <Touchable onPress={()=>setData(words)}>
+        <TextDefinition>{words.id}</TextDefinition>
+        <TextMeaning> Concepts: </TextMeaning>
+        {
+        visible?<TextMeaning>---</TextMeaning>:
+          words.results.map((lexical)=>(
+                lexical.lexicalEntries.map((entry)=>(
+                  entry.entries.map((sense)=>(
+                    sense.senses.map((definition)=>(
+                    <TextMeaning key={definition.definitions}>{definition.definitions[0]}</TextMeaning>
+                    ))
+                  ))
                 ))
               ))
-            ))
-          ))
-    }
-    
-    <TextMeaning>Category: </TextMeaning>
-    { visible?<TextMeaning>---</TextMeaning>:
-          words.results.map((lexical)=>(
-            lexical.lexicalEntries.map((category)=>(
-              <TextMeaning key={category.lexicalCategory.id}>{category.lexicalCategory.text}</TextMeaning>
-            ))
-          ))     
-    }
-    </WordIntoBox>
-    <GifBox>
+        }
+        
+        <TextMeaning>Category: </TextMeaning>
+        { visible?<TextMeaning>---</TextMeaning>:
+              words.results.map((lexical)=>(
+                lexical.lexicalEntries.map((category)=>(
+                  <TextMeaning key={category.lexicalCategory.id}>{category.lexicalCategory.text}</TextMeaning>
+                ))
+              ))     
+        }
+        </Touchable>
+        </WordIntoBox>
+        <GifBox>
 
       {
         !gif?<Giphy
@@ -302,6 +313,7 @@ const gifdata = {
   }
 ]
 }
+
 
 /*{
   words?<TextMeaning>---</TextMeaning>:
