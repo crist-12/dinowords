@@ -1,6 +1,6 @@
 
-var Word = null;
-
+let Word = null;
+let Gif = null;
 
 export const setData=(wordObject)=>{
     console.log('set')
@@ -13,7 +13,13 @@ export const getData=()=>{
     return Word;
 }
 
+export const setGifData=(gifData)=>{
+    Gif = gifData;
+    return Gif;
+}
 
-
+export const getGifData=()=>{
+    return Gif;
+}
 
 

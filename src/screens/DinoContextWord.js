@@ -1,12 +1,14 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
 import styled from 'styled-components/native'
 
 import { AppLoading } from 'expo'
 
+import { ScrollView } from 'react-native'
+
 import { useFonts, Quicksand_300Light, Quicksand_400Regular, Quicksand_700Bold, Quicksand_500Medium } from '@expo-google-fonts/quicksand'
 
-import  { getData } from '../../data_store'
+import  { getData, getGifData } from '../../data_store'
 
 import { Audio } from 'expo-av'
 
@@ -16,6 +18,13 @@ import { useIsFocused } from '@react-navigation/native'
 
 import { useState } from 'react'
 
+import { createStackNavigator } from '@react-navigation/stack'
+
+import gifbackend from '../api/gifbackend'
+import backend from '../api/backend'
+import getEnvVars from '../../enviroment'
+
+const { apiGifUrl, apiGifKey, apiGifUrlMiddle, apiGifUrlFinal} = getEnvVars();
 
 const Container = styled.ScrollView`
     flex:1;
@@ -82,21 +91,62 @@ const TextPronunciation = styled.Text`
   font-family: "Quicksand_300Light"
   margin: 10px;
 `
-const Button = styled.Button``
 
+const GBox = styled.View`
+  padding: 5px;
+`
 
+const GifBox = styled.View`
+  border : 1px;
+  border-radius: 15px;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+`
+const Giphy = styled.Image`
+padding: 5px;
+width: 200px;
+height: 200px;
+`
 
+const GifContainer = styled.View`
+  flex-direction: row;
+  width: 100%
+`
 
-const DinoContextWord=(Objectdata)=>{
+let gifArray=[];
 
-  console.log(Objectdata)
+const DinoContextWord=({navigation})=>{
+  const [gif, setGif]=useState(null);
+//  console.log(Objectdata)
   let dataObject = getData();
-  const[state, setState] = useState(true);
+  let searchGifWord = getGifData();
+  console.log(searchGifWord)
+  const getGif = async()=>{
+    let search = dataObject.id
+    console.log("SEARCH: "+search)
+    console.log("Funcion del gif - context")
+    if(!gif){
+      try {
+        const response = await gifbackend.get(apiGifUrl+apiGifKey+apiGifUrlMiddle+searchGifWord+apiGifUrlFinal+"3");
+        setGif(response.data);
+        console.log(gif)
+        //console.log(response.data);
+       // console.log(apiGifUrl+apiGifKey+apiGifUrlMiddle+search+apiGifUrlFinal);
+      }catch{
+      console.log("Error al tratar de conseguir el Gif")
+    }}
+  }
+  console.log("Abri context - context")
 
+  getGif()
 
-
-  console.log("Abri context")
-
+  if(gif){
+       gifArray=[]
+       gif.data.map((image)=>(                               
+       gifArray.push(image.images.downsized.url)
+      ))
+    }
 
     let [fontsLoaded, error] = useFonts({
       Quicksand_300Light,
@@ -127,16 +177,14 @@ const DinoContextWord=(Objectdata)=>{
       }
     }
 
-const isFocused = useIsFocused();
 
-
-  return((isFocused?
+  return(
     <Container>
     <Box>
     <WordBox>
       <WordIntoBox>
         <TextDefinition>{dataObject.id}</TextDefinition>
-        <Button></Button>
+
         <GroupText>Definitions</GroupText>
         {
            dataObject.results.map((lexical)=>(
@@ -168,12 +216,50 @@ const isFocused = useIsFocused();
           <TextPronunciation>British Pronunciation</TextPronunciation>
         </PlaySection>
       </WordIntoBox>
-      
+      <GBox>
+        <GifContainer>
+      <ScrollView 
+              horizontal
+              showsHorizontalScrollIndicator={false}>
+                  
+                        {
+                          !gif?
+                          <>
+                          <Giphy
+                          source = {require('../../assets/fondogif.png')}
+                          />
+                          </>:
+                          <>
+                          <GifBox>
+                            <Giphy
+                            source={{
+                              uri: gifArray[0]
+                            }}/>
+                            </GifBox>
+                            <GifBox>
+                            <Giphy
+                            source={{
+                              uri: gifArray[1]
+                            }}/>
+                            </GifBox>
+                            <GifBox>
+                            <Giphy
+                            source={{
+                              uri: gifArray[2]
+                            }}/>
+                            </GifBox>
+                            </>  
+                  }
+                  
+        </ScrollView>
+        </GifContainer>
+      </GBox>
     </WordBox>
+
     </Box>
-    </Container>:
-        <Container></Container>
-  )
+   
+    </Container>
+  
     
   )
 }

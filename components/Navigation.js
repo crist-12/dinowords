@@ -13,11 +13,11 @@ const Tab = createMaterialBottomTabNavigator();
 const TopNav =() => {
   let dataObject = getData()
   return  (
-    <NavigationContainer>
-    <Tab.Navigator initialRouteName="Search"
+    <NavigationContainer >
+    <Tab.Navigator
     activeColor="#FF7F00"
     labelStyle={{ fontSize: 12 }}
-    barStyle={{ backgroundColor: '#ffffff' }}>
+    barStyle={{ backgroundColor: '#ffffff' }}> 
          <Tab.Screen
         
         name="Search"

@@ -10,12 +10,14 @@ import { useFonts, Quicksand_300Light, Quicksand_400Regular, Quicksand_700Bold, 
 import DinoLoader from '../../components/DinoLoader'
 import DinoContextWord from '../screens/DinoContextWord'
 
+import  { setGifData, getGifData } from '../../data_store'
 
 // ---- Data and API Imports ----
 import gifbackend from '../api/gifbackend'
 import backend from '../api/backend'
 import getEnvVars from '../../enviroment'
 
+import  TopNav  from '../../components/Navigation'
 
 // PLEASE DON'T TOUCH ANYTHING!
 
@@ -115,7 +117,7 @@ const Giphy = styled.Image`
   width: 90%;
 `
 
-const SearchWord = (navigation)=>{
+const SearchWord = ({navigation})=>{
 
   // ---- Hooks Section -----
   const[words, setWords] = useState(data);
@@ -140,15 +142,18 @@ const SearchWord = (navigation)=>{
 // ---- Gif Api Petition ----
 const getGif = async()=>{
     console.log("Funcion del gif")
-      try {
+   //   try {
         const response = await gifbackend.get(apiGifUrl+apiGifKey+apiGifUrlMiddle+search+apiGifUrlFinal+"1");
         setGif(response.data);
+        setGifData(search);
+        console.log("----- RESULTADO -----")
+        console.log(getGifData())
         //console.log(response.data);
         
         //console.log(apiGifUrl+apiGifKey+apiGifUrlMiddle+'search'+apiGifUrlFinal);
-      }catch{
-      console.log("Error al tratar de conseguir el Gif")
-    }
+     // }catch{
+      //console.log("Error al tratar de conseguir el Gif")
+    //}
   }
 
   // ---- Word Api Petition ----
@@ -165,6 +170,7 @@ console.log("Acabo de entrar a la funcion")
     setActing(true);
     const response = await backend.get(apiUrl+search+apiUrlFinal, config);
     setWords(response.data);
+    
     console.log("Estamos intentando...")
     //console.log(response.data);
     }catch{
@@ -215,7 +221,7 @@ console.log("Acabo de entrar a la funcion")
       </Controls>
       <WordBox>
         <WordIntoBox>
-        <Touchable onPress={()=>setData(words)}>
+        <Touchable onPress={()=> navigation.navigate("DinoContextWord", {words})}>
         <TextDefinition>{words.id}</TextDefinition>
         <TextMeaning> Concepts: </TextMeaning>
         {
@@ -254,13 +260,12 @@ console.log("Acabo de entrar a la funcion")
             source={{
             uri: image.images.downsized.url
             }}
-            /> 
+            />      
           ))
       }
       
     </GifBox>
     </WordBox>
-   
     </Container>
     :
    <DinoLoader/>
