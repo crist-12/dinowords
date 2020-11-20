@@ -1,26 +1,34 @@
 
 let Word = null;
 let Gif = null;
-
+let gifArray = [];
 export const setData=(wordObject)=>{
-    console.log('set')
     Word = wordObject;
     return Word;
 }
 
 export const getData=()=>{
-    console.log('Entre a get')
     return Word;
 }
 
 export const setGifData=(gifData)=>{
-    Gif = null;
+    gifArray.length=0
     Gif = gifData;
-    return Gif;
+    Gif.data.map((image)=>(                               
+        gifArray.push(image.images.downsized.url)
+       ))
+
+    console.log("Recibí un arreglo")
+    return gifArray;
 }
 
 export const getGifData=()=>{
-    return Gif;
+    return gifArray;
 }
 
+export const singleGif=()=>{
+    console.log("Acabo de cargar "+gifArray[0])
+    const url = gifArray[0];
+    return url;
+}
 

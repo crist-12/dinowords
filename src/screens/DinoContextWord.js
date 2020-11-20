@@ -115,16 +115,15 @@ const GifContainer = styled.View`
 `
 
 
-let gifArray=[];
 
 const DinoContextWord=({navigation})=>{
-  const [gif, setGif]=useState(null);
 //  console.log(Objectdata)
   let dataObject = getData();
-  let searchGifWord = getGifData();
+  let gifArray;
+  gifArray = getGifData();
   let wordData =['No hay datos disponibles', 'No hay datos disponibles']
-  console.log(searchGifWord)
-  const getGif = async()=>{
+  console.log("Lo que hay dentro de GifArray es:"+gifArray)
+/*  const getGif = async()=>{
     let search = dataObject.id
     console.log("SEARCH: "+search)
     console.log("Funcion del gif - context")
@@ -138,17 +137,9 @@ const DinoContextWord=({navigation})=>{
       }catch{
       console.log("Error al tratar de conseguir el Gif")
     }}
-  }
+  }*/
   console.log("Abri context - context")
 
-  getGif()
-
-  if(gif){
-       gifArray=[]
-       gif.data.map((image)=>(                               
-       gifArray.push(image.images.downsized.url)
-      ))
-    }
 
     {
       dataObject.results.map((lexical) => (
@@ -244,7 +235,7 @@ console.log("Contenido del data:"+ wordData[0])
               showsHorizontalScrollIndicator={false}>
                   
                         {
-                          !gif?
+                          !gifArray?
                           <>
                           <Giphy
                           source = {require('../../assets/fondogif.png')}

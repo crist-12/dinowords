@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import {setData, getData, singleGif} from '../../data_store'
+import {setData, getData} from '../../data_store'
 
 import styled from 'styled-components/native'
 
@@ -116,9 +116,11 @@ const Giphy = styled.Image`
   height: 90%;
   width: 90%;
 `
-const gifArray=[];
+let gifArray=[];
+let uriGif;
 
 const SearchWord = ({navigation})=>{
+ console.log("Extension: "+gifArray.length)
   // ---- Hooks Section -----
   const[words, setWords] = useState(data);
   const [errorState, setError]=useState(null);
@@ -126,7 +128,6 @@ const SearchWord = ({navigation})=>{
   const [loading, setLoading]=useState(false);
   const [acting, setActing]=useState(false);
   const [gif, setGif]=useState(null);
-  const [gifState, setGifState]=useState(false)
   
   let visible=false;
 
@@ -141,57 +142,40 @@ const SearchWord = ({navigation})=>{
     }
 
 // ---- Gif Api Petition ----
-const getGif = async()=>{
-  //if(gifArray.length > 3) gifArray.length=0
-  console.log("ENTRO A GIF")
- // try{
-   console.log(apiGifUrl+apiGifKey+apiGifUrlMiddle+search+apiGifUrlFinal+"3");
-    const responseGif = await gifbackend.get(apiGifUrl+apiGifKey+apiGifUrlMiddle+search+apiGifUrlFinal+"3");
-    setGif(responseGif.data);
-    await setGifData(responseGif.data)
-    console.log(apiGifUrl+apiGifKey+apiGifUrlMiddle+search+apiGifUrlFinal+"3");
-    //console.log(gif)
-    
-      
- // }catch{
-   // console.log("Ha ocurrido un error al tratar de obtener el gif.")
-  //}
-  console.log("SALGO DE GIF")
-}
 
-const dataFunction = async()=>{
-  console.log("ENTRO A DATAFUNCTION")
-     await getGif()
-     console.log("Devuelvo un arreglo de data_Store.")
-     console.log(getGifData())
-     await getWords()
-     console.log("SALGO DE DATAFUNCTION")
-     setActing(false); // La aplicación ha dejado de buscar una palabra
-     setLoading(false); // Oculto la pantalla de carga
-     setVisible()
-}
 
   // ---- Word Api Petition ----
 const getWords = async()=>{
-  console.log("ENTRO A WORDS")
+if(gifArray.length>0){
+  gifArray.length=0;
+  console.log("Reseteé :)")
+} 
   const config = {
       headers :{
         "app_id": apiId,
         "app_key": apiKey
       }
   }
+  
   try{
+    setGifData([]);
     setActing(true);
     const response = await backend.get(apiUrl+search+apiUrlFinal, config);
     setWords(response.data);
+    const responseGif = await gifbackend.get(apiGifUrl+apiGifKey+apiGifUrlMiddle+search+apiGifUrlFinal+"3");
+    setGif(responseGif.data);      
+    gif.data.map((image)=>(                               
+      gifArray.push(image.images.downsized.url)
+     ))
+    //console.log(response.data);
     }catch{
       setError(true);
       console.log('Error al conseguir data');
     }
-     //Habilito la visibilidad del componente DinoSearch
-    console.log("SALGO DE WORDS")
+    setActing(false); // La aplicación ha dejado de buscar una palabra
+    setLoading(false); // Oculto la pantalla de carga
+    setVisible() //Habilito la visibilidad del componente DinoSearch
   }
-
 
   const setVisible=()=>{
     visible=true;
@@ -206,8 +190,11 @@ const getWords = async()=>{
       <DinoLoader/>
     )
   }
-  //console.log("El gif Data devuelve: "+algo);
+  
   setData(words);
+  setGifData(gifArray)
+
+
 
 
   return(
@@ -220,7 +207,7 @@ const getWords = async()=>{
         <SearchBox>
         <InputText placeholder="Buscar" value={search} onChangeText={setSearch}/>
         </SearchBox>
-        <ButtonBox><Button title={"Search"} color={"#FF7F00"} onPress={()=>dataFunction(search)}/></ButtonBox>
+        <ButtonBox><Button title={"Search"} color={"#FF7F00"} onPress={()=>getWords()}/></ButtonBox>
       </Controls>
       <WordBox>
         <WordIntoBox>
@@ -253,15 +240,14 @@ const getWords = async()=>{
         <GifBox>
 
       {
-        !gifArray?<Giphy
+        !gifArray[0]?<Giphy
         source = {require('../../assets/fondogif.png')}
         />:
         //  console.log("Mostraré el gif: "+gifArray[0]) 
             <Giphy 
             source={{
-           // uri: "https://media4.giphy.com/media/3o6Ztj6j633df5me5i/giphy.gif?cid=ae7bab5a3rl48wjm0er3007rq7pc4vfeouhebvlybvv2y6bv&rid=giphy.gif"
-              uri: singleGif()
-          }}
+            uri: gifArray[0]
+            }}
             />
       }
       
