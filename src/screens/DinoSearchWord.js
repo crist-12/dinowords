@@ -1,30 +1,33 @@
+//DinoSearchWord es la parte de la aplicación que provee el entorno básico para la búsqueda de la palabra
+
+//Importaciones generales y de estilo
 import React, { useState } from 'react'
-import {setData, getData, singleGif} from '../../data_store'
-
-import styled from 'styled-components/native'
-
 import { AppLoading } from 'expo'
-
+import styled from 'styled-components/native'
 import { useFonts, Quicksand_300Light, Quicksand_400Regular, Quicksand_700Bold, Quicksand_500Medium } from '@expo-google-fonts/quicksand'
 
+//Datos de arreglo de palabras y gifs enviados para ser procesados
+import {setData, singleGif} from '../../data_store'
+import  { setGifData, getGifData } from '../../data_store'
+
+//Importaciones de componentes
 import DinoLoader from '../../components/DinoLoader'
 import DinoContextWord from '../screens/DinoContextWord'
 
-import  { setGifData, getGifData } from '../../data_store'
 
 // ---- Data and API Imports ----
 import gifbackend from '../api/gifbackend'
 import backend from '../api/backend'
 import getEnvVars from '../../enviroment'
+import gifinstance from '../api/gifbackend'
+import { Linking } from 'react-native'
 
-import  TopNav  from '../../components/Navigation'
 
-// PLEASE DON'T TOUCH ANYTHING!
-
+//Variables y llaves de peticiones API
 const { apiKey, apiId, apiUrl, apiUrlFinal } = getEnvVars();
 const { apiGifUrl, apiGifKey, apiGifUrlMiddle, apiGifUrlFinal} = getEnvVars();
 
-
+// ---- STYLED SECTION ----
 const Container = styled.ScrollView`
     flex:1;
     background: white;
@@ -101,6 +104,15 @@ const TextMeaning = styled.Text`
   text-align:justify;
   padding: 5px;
 `
+
+const GroupText = styled.Text`
+  font-family: "Quicksand_400Regular"
+  font-size: 16px;
+  text-decoration: underline;
+  padding: 5px;
+  margin-top: 2px;
+`
+
 const GifBox = styled.View`
   border : 1px;
   margin-top: 5px;
@@ -110,30 +122,53 @@ const GifBox = styled.View`
   justify-content: center;
   width: 100%
   height: 200px;
+  margin-bottom: 10px;
 `
 const Giphy = styled.Image`
   padding: 5px;
   height: 90%;
   width: 90%;
 `
+
+const InfoBox = styled.View`
+`
+
+
+const InfoButton = styled.Button`
+  margin-top: 5px;
+`
+
+const TextLink = styled.Text`
+  margin-top: 10px;
+  font-family: "Quicksand_400Regular"
+  font-size: 16px;
+  text-align:justify;
+  padding: 5px;
+  color: blue;
+  text-decoration: underline;
+  text-align: center;
+`
+//Array que contiene los links de los gifs
 const gifArray=[];
 
 const SearchWord = ({navigation})=>{
+  let validator;
+  let aux;
   // ---- Hooks Section -----
-  const[words, setWords] = useState(data);
-  const [errorState, setError]=useState(null);
-  const [search, setSearch]=useState('');
-  const [loading, setLoading]=useState(false);
-  const [acting, setActing]=useState(false);
-  const [gif, setGif]=useState(null);
-  const [gifState, setGifState]=useState(false)
-  
-  let visible=false;
+  const[words, setWords] = useState(data); //Hook para cargar la información de la palabra
+  const [errorState, setError]=useState(null); //Hook que detecta si hay algún error
+  const [search, setSearch]=useState(''); //Hook que maneja el almacenamiento de lo que escribo en el textinput
+  const [loading, setLoading]=useState(false); //Hook para manejar si mi app está cargando o no
+  const [acting, setActing]=useState(false); //Hook para detectar si el gif y la palabra ya se cargaron
+  const [gif, setGif]=useState(null); //Hook que almacena resultado de la petición gif
+  const [validatorWord, setValidatorWord]=useState(true) 
+  let visible=false; //Variable que controla la visibilidad de DinoLoader
 
   // ----- Font Loading -----
   let [fontsLoaded, error] = useFonts({
     Quicksand_700Bold,
-    Quicksand_300Light  
+    Quicksand_300Light,
+    Quicksand_400Regular  
   });
 
   if(!fontsLoaded){
@@ -142,30 +177,22 @@ const SearchWord = ({navigation})=>{
 
 // ---- Gif Api Petition ----
 const getGif = async()=>{
-  //if(gifArray.length > 3) gifArray.length=0
-  console.log("ENTRO A GIF")
- // try{
-   console.log(apiGifUrl+apiGifKey+apiGifUrlMiddle+search+apiGifUrlFinal+"3");
+  try{
     const responseGif = await gifbackend.get(apiGifUrl+apiGifKey+apiGifUrlMiddle+search+apiGifUrlFinal+"3");
     setGif(responseGif.data);
     await setGifData(responseGif.data)
-    console.log(apiGifUrl+apiGifKey+apiGifUrlMiddle+search+apiGifUrlFinal+"3");
-    //console.log(gif)
-    
-      
- // }catch{
-   // console.log("Ha ocurrido un error al tratar de obtener el gif.")
-  //}
-  console.log("SALGO DE GIF")
+
+  }catch{
+    console.log("Ha ocurrido un error al tratar de obtener el gif.")
+  }
+
 }
 
+//Función invocada al presionar botón de búsqueda, desencadena dos funciones
 const dataFunction = async()=>{
-  console.log("ENTRO A DATAFUNCTION")
-     await getGif()
-     console.log("Devuelvo un arreglo de data_Store.")
-     console.log(getGifData())
-     await getWords()
-     console.log("SALGO DE DATAFUNCTION")
+     await getGif() // La función que busca el gif y lo envía a datastore para hacerlo accesible desde toda la app
+     await getWords() // La función que obtiene la palabra y también lo envía a datastore
+     
      setActing(false); // La aplicación ha dejado de buscar una palabra
      setLoading(false); // Oculto la pantalla de carga
      setVisible()
@@ -173,23 +200,28 @@ const dataFunction = async()=>{
 
   // ---- Word Api Petition ----
 const getWords = async()=>{
-  console.log("ENTRO A WORDS")
-  const config = {
+
+  if(!search==""){
+  const config = { //Configuración de header de la petición
       headers :{
         "app_id": apiId,
         "app_key": apiKey
       }
   }
+  console.log("Estoy en words")
+
   try{
     setActing(true);
     const response = await backend.get(apiUrl+search+apiUrlFinal, config);
     setWords(response.data);
+    setValidatorWord(true)
     }catch{
       setError(true);
+      setValidatorWord(false)
       console.log('Error al conseguir data');
+    }}else{
+      alert("Come on, write a word!")
     }
-     //Habilito la visibilidad del componente DinoSearch
-    console.log("SALGO DE WORDS")
   }
 
 
@@ -197,16 +229,18 @@ const getWords = async()=>{
     visible=true;
   }
 
+  //En caso que hayamos encontrado una palabra, la app deja de cargar automáticamente.
   if(!words===null ){
     setLoading(false);
   }
 
+  //Mientras esté "actuando", la aplicación retorna el componente del DinoLoader
   if(acting){
     return(
       <DinoLoader/>
     )
   }
-  //console.log("El gif Data devuelve: "+algo);
+
   setData(words);
 
 
@@ -218,55 +252,63 @@ const getWords = async()=>{
       </Box>
       <Controls>
         <SearchBox>
-        <InputText placeholder="Buscar" value={search} onChangeText={setSearch}/>
+          <InputText placeholder="Buscar" value={search} onChangeText={setSearch}/>
         </SearchBox>
-        <ButtonBox><Button title={"Search"} color={"#FF7F00"} onPress={()=>dataFunction(search)}/></ButtonBox>
+        <ButtonBox>
+          <Button title={"Search"} color={"#FF7F00"} onPress={()=>dataFunction(search)}/>
+        </ButtonBox>
       </Controls>
       <WordBox>
         <WordIntoBox>
-        <Touchable onPress={()=> navigation.navigate("DinoContextWord", {words})}>
-        <TextDefinition>{words.id}</TextDefinition>
-        <TextMeaning> Concepts: </TextMeaning>
-        {
-        visible?<TextMeaning>---</TextMeaning>:
-          words.results.map((lexical)=>(
-                lexical.lexicalEntries.map((entry)=>(
-                  entry.entries.map((sense)=>(
-                    sense.senses.map((definition)=>(
-                    <TextMeaning key={definition.definitions}>{definition.definitions[0]}</TextMeaning>
-                    ))
-                  ))
-                ))
-              ))
-        }
+          {(
+            validatorWord?
+          
+          <Touchable onPress={()=> navigation.navigate("DinoContextWord", {words})}>
+           <TextDefinition>{words.id}</TextDefinition>
+              <GroupText>Concepts</GroupText>
+                    {
+                    visible?<TextMeaning>---</TextMeaning>:
+                      words.results.map((lexical)=>(
+                            lexical.lexicalEntries.map((entry)=>(
+                              entry.entries.map((sense)=>(
+                                sense.senses.map((definition)=>(
+                                <TextMeaning key={definition.definitions}>{definition.definitions}</TextMeaning>
+                                ))
+                              ))
+                            ))
+                          ))
+                    }
         
-        <TextMeaning>Category: </TextMeaning>
-        { visible?<TextMeaning>---</TextMeaning>:
-              words.results.map((lexical)=>(
-                lexical.lexicalEntries.map((category)=>(
-                  <TextMeaning key={category.lexicalCategory.id}>{category.lexicalCategory.text}</TextMeaning>
-                ))
-              ))     
-        }
-        </Touchable>
+              <GroupText>Category</GroupText>
+              { visible?<TextMeaning>---</TextMeaning>:
+                    words.results.map((lexical)=>(
+                      lexical.lexicalEntries.map((category)=>(
+                        <TextMeaning key={category.lexicalCategory.id}>{category.lexicalCategory.text}</TextMeaning>
+                      ))
+                    ))     
+              }
+          </Touchable>
+          :
+          <><TextMeaning>Oh, no, something went wrong. We could not find your word <Text>{search}</Text> but we can help you. If you want to know more information about that word, you can click here.</TextMeaning>
+          <TextLink onPress={()=> Linking.openURL("https://www.lexico.com/definition/"+search)}>Dinoclick me</TextLink></> )}
         </WordIntoBox>
-        <GifBox>
-
+            
+      <GifBox>
       {
-        !gifArray?<Giphy
+        !gif?<Giphy
         source = {require('../../assets/fondogif.png')}
         />:
-        //  console.log("Mostraré el gif: "+gifArray[0]) 
             <Giphy 
             source={{
-           // uri: "https://media4.giphy.com/media/3o6Ztj6j633df5me5i/giphy.gif?cid=ae7bab5a3rl48wjm0er3007rq7pc4vfeouhebvlybvv2y6bv&rid=giphy.gif"
               uri: singleGif()
-          }}
-            />
+          }}/>
       }
-      
     </GifBox>
+    <InfoBox>
+    <InfoButton title={"About us"} color="#FF7F00" onPress={()=>navigation.navigate("DinoAboutUs")}/>
+    </InfoBox>
     </WordBox>
+
     </Container>
     :
    <DinoLoader/>
@@ -277,75 +319,7 @@ const getWords = async()=>{
 export default SearchWord;
 
 
-
-const gifdata = {
-  "data":[{
-  "type":"gif",
-  "id":"JPV8lNtI59zaWyL4pf",
-  "url":"https://giphy.com/gifs/memecandy-JPV8lNtI59zaWyL4pf",
-  "slug":"memecandy-JPV8lNtI59zaWyL4pf",
-  "bitly_gif_url":"https://gph.is/g/Ev3yj5o",
-  "bitly_url":"https://gph.is/g/Ev3yj5o",
-  "embed_url":"https://giphy.com/embed/JPV8lNtI59zaWyL4pf",
-  "username":"memecandy",
-  "source":"",
-  "title":"Search GIF by memecandy",
-  "rating":"g",
-  "content_url":"",
-  "source_tld":"",
-  "source_post_url":"",
-  "is_sticker":0,
-  "import_datetime":"2020-01-23 19:09:26",
-  "trending_datetime":"0000-00-00 00:00:00",
-  "images":{
-      "original":{
-          "height":"331",
-          "width":"498",
-          "size":"2464453",
-          "url":"https://media0.giphy.com/media/JPV8lNtI59zaWyL4pf/giphy.gif?cid=ae7bab5annc7epbm3zn38bk6ltxrck237c2bc3v7yjfpf7ho&rid=giphy.gif",
-          "mp4_size":"871626",
-          "mp4":"https://media0.giphy.com/media/JPV8lNtI59zaWyL4pf/giphy.mp4?cid=ae7bab5annc7epbm3zn38bk6ltxrck237c2bc3v7yjfpf7ho&rid=giphy.mp4",
-          "webp_size":"1130288",
-          "webp":"https://media0.giphy.com/media/JPV8lNtI59zaWyL4pf/giphy.webp?cid=ae7bab5annc7epbm3zn38bk6ltxrck237c2bc3v7yjfpf7ho&rid=giphy.webp",
-          "frames":"28",
-          "hash":"c4b67f3d578f8877b6caecc752499682"},
-          "downsized":{
-              "height":"331",
-              "width":"498",
-              "size":"1412653",
-              "url":"https://media0.giphy.com/media/JPV8lNtI59zaWyL4pf/giphy-downsized.gif?cid=ae7bab5annc7epbm3zn38bk6ltxrck237c2bc3v7yjfpf7ho&rid=giphy-downsized.gif"
-          }
-      }
-  }
-]
-}
-
-
-/*{
-  words?<TextMeaning>---</TextMeaning>:
-      words.results.map((lexical)=>(
-            lexical.lexicalEntries.map((entry)=>(
-              entry.entries.map((sense)=>(
-                sense.senses.map((definition)=>(
-                <TextMeaning key={definition.definitions}>{definition.definitions[0]}</TextMeaning>
-                ))
-              ))
-            ))
-          ))
-}
-*/
-
-/*{ words?<TextMeaning>---</TextMeaning>:
-          words.results.map((lexical)=>(
-            lexical.lexicalEntries.map((category)=>(
-              category.lexicalCategory.map((typeword)=>(
-                <TextMeaning key={typeword.id}>{typeword.text}</TextMeaning>
-                ))
-            ))
-          ))
-    } */
-
-
+//Por defecto el programa debe cargar la palabra "dinosaur"
 const data = {
   "id": "dinosaur",
   "metadata": {

@@ -1,11 +1,12 @@
+//DinoLoader es un componente mostrado cuando la aplicación está buscando una palabra.
+
+// Imports generales y de estilo
 import React from 'react';
-
 import styled from 'styled-components'
-
 import { AppLoading } from 'expo'
-
 import { useFonts, Quicksand_300Light, Quicksand_400Regular, Quicksand_700Bold, Quicksand_600SemiBold} from '@expo-google-fonts/quicksand'
 
+// ----- STYLED SECTION -----
 const Gif = styled.Image`
     height: 200px;
 `

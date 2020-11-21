@@ -1,9 +1,9 @@
+//El Header es el componente ubicado en la parte superior de la aplicación.
+
+// Imports generales y de estilo
 import React from 'react';
-
 import styled from 'styled-components/native'
-
 import { AppLoading } from 'expo'
-
 import { useFonts, Quicksand_300Light, Quicksand_400Regular, Quicksand_700Bold, Quicksand_600SemiBold} from '@expo-google-fonts/quicksand'
 
 const Container = styled.View`
@@ -77,18 +77,17 @@ const Header = () => {
 
 return(
   <Container>
-  <Head>
-  <WordSection>
-  <AppWord><Text>Dinoword</Text></AppWord>
-  <HeaderText>
-  <HelpText>How can I dinohelp you?</HelpText>
-  </HeaderText>
-  </WordSection>
-  
-  <Dino>
-  <Image source = {require('../assets/dinosaurio.png')}/>
-  </Dino>
-  </Head>
+    <Head>
+        <WordSection>
+            <AppWord><Text>Dinoword</Text></AppWord>
+            <HeaderText>
+                <HelpText>How can I dinohelp you?</HelpText>
+            </HeaderText>
+        </WordSection>
+        <Dino>
+            <Image source = {require('../assets/dinosaurio.png')}/>
+        </Dino>
+    </Head>
   </Container>
 )
 };
