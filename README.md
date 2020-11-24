@@ -21,7 +21,7 @@ visual con el que podemos adquirir más rápidamente una palabra.
 Dinowords is a new, easy and fun way to make word searches a unique
 and unforgettable experience.
 
-Some studies indicate that an average speaker handles around 20,
+Some studies indicate that an average speaker handles around 20,000
 words but not even that many are necessary to communicate.
 
 Dinowords merges the experience of a dictionary with the visual
